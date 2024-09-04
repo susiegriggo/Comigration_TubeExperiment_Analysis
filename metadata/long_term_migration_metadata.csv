@@ -1,0 +1,23 @@
+Sample,FAME,sample_id,tube,sewage_date,distance_cm,location,all
+Sample 1,FAME000001,A1_1m_start,A1,13/4/2021,0,start,A
+Sample 2,FAME000002,A1_1m_end,A1,13/4/2021,169.1,end,A
+Sample 3,FAME000003,B1_1m_start,B1,13/4/2021,0,start,A
+Sample 4,FAME000004,B1_1m_end,B1,13/4/2021,91.2,end,A
+Sample 5,FAME000005,E1_1m_start,E1,13/4/2021,0,start,A
+Sample 6,FAME000006,E1_1m_end,E1,13/4/2021,84.9,end,A
+Sample 7,FAME000007,A2_1m_start,A2,21/4/2021,0,start,A
+Sample 8,FAME000008,B2_1m_start,B2,21/4/2021,0,start,A
+Sample 9,FAME000009,B2_1m_end,B2,21/4/2021,159.2,end,A
+Sample 10,FAME000010,C2_1m_start,C2,21/4/2021,0,start,A
+Sample 11,FAME000011,C2_1m_end,C2,21/4/2021,264.3,end,A
+Sample 12,FAME000012,D2_1m_end,D2,21/4/2021,157.8,end,A
+Sample 13,FAME000013,D2_1m_start,D2,21/4/2021,0,start,A
+Sample 14,FAME000014,E2_1m_start,E2,21/4/2021,0,start,A
+Sample 15,FAME000015,E2_1m_end,E2,21/4/2021,163,end,A
+Sample 16,FAME000016,A3_1m_start,A3,15/6/2021,0,start,A
+Sample 17,FAME000017,A3_1m_end,A3,15/6/2021,127.7,end,A
+Sample 18,FAME000018,B3_1m_start,B3,15/6/2021,0,start,A
+Sample 19,FAME000019,B3_1m_end,B3,15/6/2021,110.4,end,A
+Sample 20,FAME000020,D3_1m_start,D3,15/6/2021,0,start,A
+Sample 22,FAME000022,E3_1m_start,E3,15/6/2021,0,start,A
+Sample 23,FAME000023,E3_1m_end,E3,15/6/2021,96.1,end,A

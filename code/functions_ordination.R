@@ -4,14 +4,14 @@ library(ggplot2)
 library(dplyr)
 library(tidyr) 
 
-setwd('~/OneDrive - Flinders/HONOURS 2021/Combined Paper 2023/')
+setwd('../')
 
-## Figure on Susie's data  
+## Figure long-term migration 
 ## PCO ordination at the species level 
-data <- read.csv('Susie Data/level3_readcounts.tsv', sep = '\t', row.names = 1)
+data <- read.csv('data/superfocus/long_term_migration_level3_relabund.tsv', sep = '\t', row.names = 1)
 data[is.na(data)] <- 0
 data <- subset(data, rowSums(data != 0) > 0)
-meta <- read.table(file = 'Susie Data/metadata.csv',sep = ',', header = TRUE)
+meta <- read.table(file = 'metadata/long_term_migration_metadata.csv',sep = ',', header = TRUE)
 
 # calculate the bray curtis distance - can take some time 
 bray_curtis_dist <- vegdist(t(sqrt(data)), method = 'bray')
@@ -44,15 +44,14 @@ permanova_sewagedate <- adonis2(bray_curtis_dist ~ meta$sewage_date, permutation
 permdisp_location <- betadisper(bray_curtis_dist, meta$location) 
 permdisp_results <- permutest(permdisp_location, permutations = 9999) 
 
-
 ### Repeat for Jims functions 
 
 ## PCO ordination at the species level 
   
-data <- read.csv('Jim Data/superfocus_normed/level3_abundance.tsv', sep = '\t', row.names = 1)
+data <- read.csv('data/superfocus/residual_community_level3_relabund.tsv', sep = '\t', row.names = 1)
 data[is.na(data)] <- 0
 data <- subset(data, rowSums(data != 0) > 0)
-metadata <- read.table(file='Jim Data/Jim_metadata .csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
+metadata <- read.table(file='metadata/residual_community_metadata.csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
 
 # order the samples by their order in the tube 
 data <- data[rownames(metadata)]

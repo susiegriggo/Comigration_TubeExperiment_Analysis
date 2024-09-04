@@ -8,24 +8,19 @@ library(DESeq2)
 
 
 # set the working directory 
-setwd('~/OneDrive - Flinders/HONOURS 2021/Combined Paper 2023/Susie Data/')
+setwd('../')
 
-# read in my data 
-#level2 <- read.table('level2_readcounts.tsv', sep = '\t', header=TRUE)
-level3 <- read.csv('level3_readcounts.tsv', sep = '\t')
-# remove the unknown row 
-#index <- rownames(level3) != "-"
-# use the logical index to subset the DataFrame
-#level3 <- level3[index,]
+# read in unnormalised counts from long term migration 
+level3 <- read.csv('data/superfocus/long_term_migration_level3_readcounts.tsv', sep = '\t')
+
 # replace colnames 
 colnames(level3) <- substr(colnames(level3), 1, 10)
 
 # read in the metadata 
-metadata <- read.table(file = 'metadata.csv', row.names = NULL, sep = ',', header = TRUE)
+metadata <- read.table(file = 'metadata', row.names = NULL, sep = ',', header = TRUE)
 colnames(metadata) <- c("Sample", "id","sample_id" ,"tube","sewage_date", "distance_cm","location","all"  )
 #rownames(metadata) <- metadata$id
 metadata <- metadata[, c("id","sample_id" ,"tube","sewage_date", "distance_cm","location","all"  )]
-
 
 # create a deseq object 
 dds <- DESeqDataSetFromMatrix(countData=level3, 
@@ -168,24 +163,5 @@ ggplot(sig_increase, aes(x = log2FoldChange, y = reorder(Subsystem, log2FoldChan
 
 # save the results table to text file 
 write.csv(r, file = 'deSeq_results_level3_subsystems.csv', row.names = TRUE)
-
-### Do DeSEQ analysis on just the chemotaxis functions 
-chemotaxis <- read.csv('chemotaxis_readcounts.tsv', sep='\t')
-colnames(chemotaxis) <- substr(colnames(chemotaxis), 1, 10)
-chemotaxis[is.na(chemotaxis)] <- 0
-
-# create a deseq object 
-dds <- DESeqDataSetFromMatrix(countData=chemotaxis, 
-                              colData=metadata, 
-                              design=~tube + location, tidy = TRUE) # is this correct design to pair location and tube 
-# run DESEQ on the object 
-dds <- DESeq(dds)
-
-# look at the results table 
-res <- results(dds, contrast=c("location","end", "start"))
-head(results(dds, tidy=TRUE)) 
-
-# sort the results by p-value
-res <- data.frame(res[order(res$padj),])
 
 

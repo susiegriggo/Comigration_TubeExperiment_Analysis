@@ -1,6 +1,4 @@
 ## ordination and heatmaps of the viruses
-## Do samples at the start and end of the tube 'susie's data' 
-## Do samples along the tube 'Jim's data' 
 
 library(pheatmap)
 library(RColorBrewer)
@@ -9,56 +7,15 @@ library(ecodist)
 library(ggplot2)
 library(dplyr)
 
-setwd('~/OneDrive - Flinders/HONOURS 2021/Combined Paper 2023/')
+setwd('../')
 
-## Make a heatmap of the viruses - repeat at the species level and the genus level 
-
+### Make heatmap of long term migration viruses 
 # read in the data 
-data = read.table(file='Jim Data/virus_hecatomb_species_0.02.tsv', fill=TRUE, sep = '\t',header=TRUE, row.names=1)
+data = read.table(file='output_files/long_term_migration_virus_hecatomb_species_0.05.tsv', fill=TRUE, sep = '\t',header=TRUE, row.names=1)
 colnames(data) <- lapply(colnames(data), function(x) substr(x, 1, 10))
 
 # read in the metadata
-metadata <- read.table(file='Jim Data/Jim_metadata .csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
-
-# data  
-data <- data[rownames(metadata)]
-
-# Modify ordering of the clustersusing clustering callback option
-callback = function(hc, mat){
-  mat[is.na(mat)] <- 0
-  sv = svd(mat)$v[,1]
-  dend = reorder(as.dendrogram(hc), wts = sv)
-  as.hclust(dend)
-}
-
-get_plot_dims <- function(heat_map)
-{
-  plot_height <- sum(sapply(heat_map$gtable$heights, grid::convertHeight, "in"))
-  plot_width  <- sum(sapply(heat_map$gtable$widths, grid::convertWidth, "in"))
-  return(list(height = plot_height, width = plot_width))
-}
-
-#change the names to italics 
-newnames <- gsub("\\s+", "", rownames(data))
-newnames <- lapply(
-  newnames,
-  function(x) bquote(italic(.(x))))
-
-#data <- data[order(data$FAME000132, decreasing=TRUE), ]
-df <- as.matrix(data)
-colnames(df) <- c( "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11" ,"12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24","25", "26", "27", "28", "Band")
-df[df == 0] <- NA
-pheatmap(sqrt(df), colorRampPalette(rev(brewer.pal(n = 7, name =
-                                                     "Spectral")))(100),cluster_rows = T,  cluster_cols = F,  clustering_callback = callback, fontsize_row =8.5, fontsize_column=8.5,show_colnames = T,  cellheight=12, cellwidth =12,labels_row = as.expression(newnames), gaps_col=c(28, 28, 28, 28))
-
-### Make heatmap of Susie's data
-# read in the data 
-data = read.table(file='Susie Data/virus_hecatomb_species_0.05.tsv', fill=TRUE, sep = '\t',header=TRUE, row.names=1)
-colnames(data) <- lapply(colnames(data), function(x) substr(x, 1, 10))
-
-# read in the metadata
-data <- data[metadata$FAME]
-metadata <- read.table(file='Susie Data/metadata.csv', sep = ',', row.names=2, header=TRUE)
+metadata <- read.table(file='metadata/long_term_migration_metadata.csv', sep = ',', row.names=2, header=TRUE)
 
 # data  
 #TODO reorganise the data so that it is in the right order 
@@ -109,13 +66,13 @@ heatmap_plot$legend$labels$size <- 8  # Adjust label size
 heatmap_plot$legend$labels$padding <- 5  # Adjust padding between labels
 heatmap_plot
 
-ggsave("~/Downloads/viruses_heatmap.png", plot = heatmap_plot, width = 10, height = 3, units = "in", 
+ggsave("figures/long_term_migration_virus_species_heatmap.png", plot = heatmap_plot, width = 10, height = 3, units = "in", 
        limitsize = FALSE, 
        antialias = "cleartype", ) 
 
 
-## Read in the data 
-data <- read.table(file = 'Jim Data/virus_hectomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')
+## PCoA on the residual community 
+data <- read.table(file = 'output_files/residual_community_virus_hecatomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')
 data[is.na(data)] <- 0
 data <- subset(data, rowSums(data != 0) > 0)
 data <- data[complete.cases(data), ]
@@ -125,7 +82,7 @@ data < data.frame(data)
 colnames(data) <- substr(colnames(data), start = 1, stop = 10)
 
 # read in the metadata
-metadata <- read.table(file='Jim Data/Jim_metadata .csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
+metadata <- read.table(file='metadata/residual_community_metadata.csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
 
 # order the samples by their order in the tube 
 data <- data[rownames(metadata)]
@@ -175,11 +132,12 @@ bray_curtis_plot_with_order <- bray_curtis_plot + geom_segment(aes(x = 0, y = 0,
 
 # Display the plot
 bray_curtis_plot
-ggsave("~/Downloads/residual_community_viruses.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
+
+ggsave("figures/residual_community_virus_species_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
 
-### Repeat ordination for Susie's tube samples 
-data <- read.table(file = 'Susie Data/virus_hectomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')
+### Repeat ordination for long term migration tube samples 
+data <- read.table(file = 'output_files/long_term_migration_virus_hecatomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')
 data[is.na(data)] <- 0
 data <- subset(data, rowSums(data != 0) > 0)
 data <- data[complete.cases(data), ]
@@ -189,7 +147,7 @@ data < data.frame(data)
 colnames(data) <- substr(colnames(data), start = 1, stop = 10)
 
 # read in the metadata
-metadata <- read.table(file='Susie Data/metadata.csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
+metadata <- read.table(file='metadata/long_term_migration_metadata.csv', fill=TRUE, sep=',', row.names=1, header=TRUE)
 
 # order the samples by their order in the tube 
 data <- data[metadata$FAME]
@@ -214,7 +172,7 @@ bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df, aes(x=pcoa1, y=pcoa2, col
   labs(shape="Sewage sample", colour="Tube position")+
   scale_color_brewer(palette = 'Set1') 
 bray_curtis_plot 
-ggsave("~/Downloads/long_term_viruses.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
+ggsave("figures/long_term_migration_virus_species_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
 
 # Do a PERMANOVA to see if there is a significant difference in viruses 

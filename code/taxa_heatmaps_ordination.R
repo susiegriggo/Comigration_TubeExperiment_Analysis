@@ -61,7 +61,6 @@ bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df[1:28,], aes(x = pcoa1, y =
 bray_curtis_plot
 ggsave("figures/residual_community_genus_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
-
 # correlation of order with the first principal component 
 # Ensure both 'Order' and 'PCoA1' are numeric
 bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
@@ -101,6 +100,22 @@ bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df, aes(x=pcoa1, y=pcoa2, col
   labs(shape="Sewage sample", colour="Tube position")+
   scale_color_brewer(palette = 'Set1') 
 bray_curtis_plot 
+
+ggsave("figures/long_term_migration_genus_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
+
+# do permanova and permdisp on this data 
+## 1. Perform PERMANOVA
+# Test for differences in community composition between locations
+permanova_result_sewage_date <- adonis2(bray_curtis_dist ~ sewage_date, data = meta, method = "bray", permutations=9999)
+print(permanova_result_sewage_date)
+permanova_result_location <- adonis2(bray_curtis_dist ~ location, data = meta, method = "bray", permutations=9999)
+print(permanova_result_location)
+
+## 2. Perform PERMDISP
+# Test for homogeneity of dispersions for 'location'
+disper_location <- betadisper(bray_curtis_dist, meta$location)
+permdisp_location <- permutest(disper_location, permutations = 9999)
+print(permdisp_location)
 
 # start vs end heatmap 
   # read in the data 

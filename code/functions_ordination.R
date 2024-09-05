@@ -34,6 +34,10 @@ bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df, aes(x=pcoa1, y=pcoa2, col
   scale_color_brewer(palette = 'Set1') 
 bray_curtis_plot 
 
+# Save this figure 
+ggsave("figures/residual_community_level3_relabund_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
+
+
 ## PERMANOVA
 ## difference between the beginning and the end 
 permanova_location <- adonis2(bray_curtis_dist ~ meta$location, permutations=9999)
@@ -44,7 +48,7 @@ permanova_sewagedate <- adonis2(bray_curtis_dist ~ meta$sewage_date, permutation
 permdisp_location <- betadisper(bray_curtis_dist, meta$location) 
 permdisp_results <- permutest(permdisp_location, permutations = 9999) 
 
-### Repeat for Jims functions 
+### Repeat for the residual community 
 
 ## PCO ordination at the species level 
   

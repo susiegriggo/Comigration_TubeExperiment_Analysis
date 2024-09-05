@@ -17,8 +17,6 @@ colnames(data) <- lapply(colnames(data), function(x) substr(x, 1, 10))
 # read in the metadata
 metadata <- read.table(file='metadata/long_term_migration_metadata.csv', sep = ',', row.names=2, header=TRUE)
 
-# data  
-#TODO reorganise the data so that it is in the right order 
 colnames(data) <- metadata$location
 
 # Modify ordering of the clustering clustering callback option
@@ -135,6 +133,18 @@ bray_curtis_plot
 
 ggsave("figures/residual_community_virus_species_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
+
+# Compute the pearson correlation 
+# correlation of order with the first principal component 
+# Ensure both 'Order' and 'PCoA1' are numeric
+bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
+bray_curtis_pcoa_df$pcoa1 <- as.numeric(bray_curtis_pcoa_df$pcoa1)
+
+# Calculate the Pearson correlation coefficient between 'Order' and 'PCoA1'
+correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+
+# Print the correlation coefficient
+print(correlation_order_pcoa1)
 
 ### Repeat ordination for long term migration tube samples 
 data <- read.table(file = 'output_files/long_term_migration_virus_hecatomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')

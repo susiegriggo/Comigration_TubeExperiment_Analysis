@@ -62,6 +62,17 @@ bray_curtis_plot
 ggsave("figures/residual_community_genus_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
 
+# correlation of order with the first principal component 
+# Ensure both 'Order' and 'PCoA1' are numeric
+bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
+bray_curtis_pcoa_df$pcoa1 <- as.numeric(bray_curtis_pcoa_df$pcoa1)
+
+# Calculate the Pearson correlation coefficient between 'Order' and 'PCoA1'
+correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+
+# Print the correlation coefficient
+print(correlation_order_pcoa1)
+
 ## PcoA of long-term migration 
 # start vs end PCoA 
 data <- read.table(file = 'output_files/long_term_migration_bracken_genus_abund_confidence_0.1.tsv', fill = TRUE, sep = '\t', row.names = 1, header = TRUE)

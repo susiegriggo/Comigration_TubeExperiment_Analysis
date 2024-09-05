@@ -7,77 +7,71 @@ library(viridis)
 library(tidyr)
 library(RColorBrewer)
 
-
 setwd('../')
 
-JimbacteriaNEW <- read.csv("output_files/residual_community_bracken_species_abund_confidence_0.1.tsv", stringsAsFactors = FALSE, sep='\t')
-Jimmetadata <- read.csv("metadata/residual_community_metadata.csv")
+bacteria <- read.csv("output_files/residual_community_bracken_species_abund_confidence_0.1.tsv", stringsAsFactors = FALSE, sep='\t')
+metadata <- read.csv("metadata/residual_community_metadata.csv")
 
-# Step 1: Reorder columns in JimbacteriaNEW based on Jimmetadata
-JimbacteriaReorder <- JimbacteriaNEW[, Jimmetadata$FAME.ID]
+# Step 1: Reorder columns in bacteria based on metadata
+bacteriaReorder <- bacteria[, metadata$FAME.ID]
 
-# Subset JimbacteriaNEW based on Jimmetadata$FAME.ID..leave.blank.
-selected_columns <- c("name", Jimmetadata$FAME.ID)  # Include "name" as the first column
+# Subset bacteriaNEW based on metadata$FAME.ID..leave.blank.
+selected_columns <- c("name", metadata$FAME.ID)  # Include "name" as the first column
 
-# Subset JimbacteriaNEW
-JimbacteriaReorder <- JimbacteriaNEW[, selected_columns]
+# Subset bacteriaNEW
+bacteriaReorder <- bacteriaNEW[, selected_columns]
 
 # Add a new column 'TotalAbundance' that sums the values of the FAME columns for each row
-JimbacteriaReorder <- JimbacteriaReorder %>%
+bacteriaReorder <- bacteriaReorder %>%
   rowwise() %>%
   mutate(TotalAbundance = sum(c_across(starts_with("FAME")), na.rm = TRUE)) %>%
   ungroup()
 
 # Name the first column
-colnames(JimbacteriaReorder)[1] <- "Species"
+colnames(bacteriaReorder)[1] <- "Species"
 
 # Generate new column names
-#new_column_names <- paste( 1:30, sep = "_")
+new_column_names <- paste( 1:30, sep = "_")
 
 # Rename columns 2 to 30
-#colnames(JimbacteriaReorder)[2:30] <- new_column_names
-
+colnames(bacteriaReorder)[2:30] <- new_column_names
 
 # Arrange the dataset by total_abundance in descending order
-JimbacteriaReorder <- JimbacteriaReorder %>%
+bacteriaReorder <- bacteriaReorder %>%
   arrange(desc(TotalAbundance))
 
-
 # Step 4: Select top 30 rows
-top30_JimbacteriaReorder <- JimbacteriaReorder[1:30, ]
+top30_bacteriaReorder <- bacteriaReorder[1:30, ]
 
 # Step 5: Reshape data to long format
-long_JimbacteriaReorder <- gather(top30_JimbacteriaReorder, key = "Sample", value = "Abundance", -Species)
-
+long_bacteriaReorder <- gather(top30_bacteriaReorder, key = "Sample", value = "Abundance", -Species)
 
 # Ensure 'Time' is numeric and 'Value' is numeric
-long_JimbacteriaReorder$Sample <- as.numeric(as.character(long_JimbacteriaReorder$Sample))
-long_JimbacteriaReorder$Abundance <- as.numeric(as.character(long_JimbacteriaReorder$Abundance))
+long_bacteriaReorder$Sample <- as.numeric(as.character(long_bacteriaReorder$Sample))
+long_bacteriaReorder$Abundance <- as.numeric(as.character(long_bacteriaReorder$Abundance))
 
+View(long_bacteriaReorder)
 
 # Assuming your dataframe is named df
-long_JimbacteriaReorder <- long_JimbacteriaReorder %>%
+
+long_bacteriaReorder <- long_bacteriaReorder %>%
   filter(!is.na(Abundance) & is.finite(Abundance))
 
-
 # Step 2: Create desired order based on the current sequence
-desired_order <- unique(long_JimbacteriaReorder$Species)  # Extract unique species names in their current order
+desired_order <- unique(long_bacteriaReorder$Species)  # Extract unique species names in their current order
 
 # Step 3: Convert species to factor with desired order
-long_JimbacteriaReorder$Species <- factor(long_JimbacteriaReorder$Species, levels = desired_order)
+long_bacteriaReorder$Species <- factor(long_bacteriaReorder$Species, levels = desired_order)
 
 ## Create custom color palette using the Spectral palette for 30 groups
 spectral_palette <- colorRampPalette(rev(brewer.pal(n = 11, name = "Spectral")))(37)
 print(spectral_palette)
 
 # Create a copy of your data to manipulate
-long_JimbacteriaReorder_modified <- long_JimbacteriaReorder
+long_bacteriaReorder_modified <- long_bacteriaReorder
 
 # Identify the species to highlight in black
 species_to_highlight <- "Enterobacter sp. RHBSTW-00994"
-
-# Create a new column fill_color and set the color
-long_JimbacteriaReorder_modified$fill_color <- ifelse(long_JimbacteriaReorder_modified$Species == species_to_highlight, "black", as.character(long_JimbacteriaReorder_modified$Species))
 
 
 ##### reorder colours for new order
@@ -115,43 +109,26 @@ custom_palette3 <- c(
   "Clostridium sp. MF28" = "#F26A43"
 )
 
+custom_palette <-  custom_palette3
 
-ggplot(long_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
-  geom_area(position = "fill", colour = "black", alpha = 0.75) +  # Adjust alpha here for stronger transparency
-  labs(x = "Sample", y = "Abundance", fill = "Species") +
-  theme_minimal() +
-  theme(
-    axis.title.x = element_text(face = "bold", size = 14),
-    axis.title.y = element_text(face = "bold", size = 14),
-    axis.text = element_text(size = 12),
-    legend.title = element_text(face = "bold", size = 14),
-    legend.text = element_text(face = "italic", size = 10),
-    panel.grid.major = element_blank(),  # Remove major grid lines
-    panel.grid.minor = element_blank()
-  ) +
-  scale_fill_manual(values = custom_palette) +
-  geom_vline(xintercept = 28.5, linetype = "dashed", color = "red", size = 1.5)
-
-
-
-# Extract the species and their abundances in the first sample from top30_JimbacteriaReorder
-species_order <- top30_JimbacteriaReorder %>%
+# Extract the species and their abundances in the first sample from top30_bacteriaReorder
+species_order <- top30_bacteriaReorder %>%
   select(Species, `1`) %>%
   arrange(desc(`1`)) %>%
   pull(Species)
 
 # Convert the Species column to a factor with the desired order
-top30_JimbacteriaReorder$Species <- factor(top30_JimbacteriaReorder$Species, levels = species_order)
+top30_bacteriaReorder$Species <- factor(top30_bacteriaReorder$Species, levels = species_order)
 
 # Reshape the data to long format for ggplot
-long_top30_JimbacteriaReorder <- top30_JimbacteriaReorder %>%
+long_top30_bacteriaReorder <- top30_bacteriaReorder %>%
   pivot_longer(cols = -c(Species, TotalAbundance), names_to = "Sample", values_to = "Abundance")
 
 # Convert Sample to numeric for proper ordering in the plot
-long_top30_JimbacteriaReorder$Sample <- as.numeric(long_top30_JimbacteriaReorder$Sample)
+long_top30_bacteriaReorder$Sample <- as.numeric(long_top30_bacteriaReorder$Sample)
 
 # Plot with legend 
-ggplot(long_top30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
+ggplot(long_top30_bacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
   geom_area(position = "fill", colour = "black", alpha = 0.75) +  # Adjust alpha here for stronger transparency
   labs(x = "Distance (cms)", y = "Abundance", fill = "Species") +
   theme_minimal() +
@@ -171,7 +148,7 @@ ggplot(long_top30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Spec
 
 
 ###plot without legend 
-ggplot(long_top30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
+ggplot(long_top30_bacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
   geom_area(position = "fill", colour = "black", alpha = 0.75) + 
   labs(x = "Distance (cms)", y = "Abundance", fill = "Species") +
   theme_minimal() +
@@ -194,27 +171,27 @@ ggplot(long_top30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Spec
 ###### 31-61##########################################################################################
 
 # Step 4: Select top 30 rows
-second30_JimbacteriaReorder <- JimbacteriaReorder[31:61, ]
-View(second30_JimbacteriaReorder)
+second30_bacteriaReorder <- bacteriaReorder[31:61, ]
+View(second30_bacteriaReorder)
 
 # Step 5: Reshape data to long format
 library(tidyr)
-long_JimbacteriaReorder2nd30 <- gather(second30_JimbacteriaReorder, key = "Sample", value = "Abundance", -Species)
-View(long_JimbacteriaReorder2nd30)
+long_bacteriaReorder2nd30 <- gather(second30_bacteriaReorder, key = "Sample", value = "Abundance", -Species)
+View(long_bacteriaReorder2nd30)
 
 
 # Ensure 'Time' is numeric and 'Value' is numeric
-long_JimbacteriaReorder2nd30$Sample <- as.numeric(as.character(long_JimbacteriaReorder2nd30$Sample))
-long_JimbacteriaReorder2nd30$Abundance <- as.numeric(as.character(long_JimbacteriaReorder2nd30$Abundance))
+long_bacteriaReorder2nd30$Sample <- as.numeric(as.character(long_bacteriaReorder2nd30$Sample))
+long_bacteriaReorder2nd30$Abundance <- as.numeric(as.character(long_bacteriaReorder2nd30$Abundance))
 
 library(dplyr)
 
 
 # Step 2: Create desired order based on the current sequence
-desired_order2 <- unique(long_JimbacteriaReorder2nd30$Species)  # Extract unique species names in their current order
+desired_order2 <- unique(long_bacteriaReorder2nd30$Species)  # Extract unique species names in their current order
 
 # Step 3: Convert species to factor with desired order
-long_JimbacteriaReorder2nd30$Species <- factor(long_JimbacteriaReorder2nd30$Species, levels = desired_order2)
+long_bacteriaReorder2nd30$Species <- factor(long_bacteriaReorder2nd30$Species, levels = desired_order2)
 
 
 
@@ -254,24 +231,24 @@ custom_palette4 <- c(
 
 ######### change the order ######
 
-# Extract the species and their abundances in the first sample from top30_JimbacteriaReorder
-species_order <- second30_JimbacteriaReorder %>%
+# Extract the species and their abundances in the first sample from top30_bacteriaReorder
+species_order <- second30_bacteriaReorder %>%
   select(Species, `1`) %>%
   arrange(desc(`1`)) %>%
   pull(Species)
 
 # Convert the Species column to a factor with the desired order
-second30_JimbacteriaReorder$Species <- factor(second30_JimbacteriaReorder$Species, levels = species_order)
+second30_bacteriaReorder$Species <- factor(second30_bacteriaReorder$Species, levels = species_order)
 
 # Reshape the data to long format for ggplot
-long_second30_JimbacteriaReorder <- second30_JimbacteriaReorder %>%
+long_second30_bacteriaReorder <- second30_bacteriaReorder %>%
   pivot_longer(cols = -c(Species, TotalAbundance), names_to = "Sample", values_to = "Abundance")
 
 # Convert Sample to numeric for proper ordering in the plot
-long_second30_JimbacteriaReorder$Sample <- as.numeric(long_second30_JimbacteriaReorder$Sample)
+long_second30_bacteriaReorder$Sample <- as.numeric(long_second30_bacteriaReorder$Sample)
 
 # Plot with legend
-ggplot(long_second30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
+ggplot(long_second30_bacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
   geom_area(position = "fill", colour = "black", alpha = 0.75) +  # Adjust alpha here for stronger transparency
   labs(x = "Distance (cms)", y = "Abundance", fill = "Species") +
   theme_minimal() +
@@ -290,10 +267,10 @@ ggplot(long_second30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = S
                      labels = c("0", "30", "60", "90"))  # Specify the labels
 
 # Plot with no legend 
-species_order2 <- levels(long_second30_JimbacteriaReorder$Species)
+species_order2 <- levels(long_second30_bacteriaReorder$Species)
 print(species_order2)
 
-ggplot(long_second30_JimbacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
+ggplot(long_second30_bacteriaReorder, aes(x = Sample, y = Abundance, fill = Species)) +
   geom_area(position = "fill", colour = "black", alpha = 0.75) +  # Adjust alpha here for stronger transparency
   labs(x = "Distance (cms)", y = "Abundance", fill = "Species") +
   theme_minimal() +

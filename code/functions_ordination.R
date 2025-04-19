@@ -4,7 +4,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr) 
 
-setwd('../')
+setwd('~/GitHubs/Comigration_TubeExperiment_Analysis/')
 
 ## Figure long-term migration 
 ## PCO ordination at the species level 
@@ -105,7 +105,17 @@ bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
 bray_curtis_pcoa_df$pcoa1 <- as.numeric(bray_curtis_pcoa_df$pcoa1)
 
 # Calculate the Pearson correlation coefficient between 'Order' and 'PCoA1'
-correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+#correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
 
 # Print the correlation coefficient
-print(correlation_order_pcoa1)
+#print(correlation_order_pcoa1)
+
+# Perform a mantel test instead 
+# Create a distance matrix of sample order (1D Euclidean distance)
+order_dist <- dist(bray_curtis_pcoa_df$Order, method = "euclidean")
+
+# Run Mantel test between Bray-Curtis and Order distance matrices
+mantel_result <- vegan::mantel(bray_curtis_dist, order_dist, method = "pearson", permutations = 9999)
+
+# Print or store the Mantel r value
+print(mantel_result)

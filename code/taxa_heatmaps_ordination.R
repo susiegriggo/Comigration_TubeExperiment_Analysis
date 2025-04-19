@@ -7,7 +7,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyr) 
 
-setwd('../')
+setwd('~/GitHubs/Comigration_TubeExperiment_Analysis/')
 
 # Residual community PCoA 
 
@@ -67,10 +67,13 @@ bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
 bray_curtis_pcoa_df$pcoa1 <- as.numeric(bray_curtis_pcoa_df$pcoa1)
 
 # Calculate the Pearson correlation coefficient between 'Order' and 'PCoA1'
-correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+#correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+order_dist <- dist(metadata$Order, method = 'euclidean')
+# Run a Mantel test: Bray-Curtis vs. Order
+# Use vegan explicitly
+mantel_result <- vegan::mantel(bray_curtis_dist, order_dist, method = "pearson", permutations = 9999)
+print(mantel_result)
 
-# Print the correlation coefficient
-print(correlation_order_pcoa1)
 
 ## PcoA of long-term migration 
 # start vs end PCoA 

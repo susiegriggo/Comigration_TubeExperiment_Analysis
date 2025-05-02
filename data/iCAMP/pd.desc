@@ -1,0 +1,5 @@
+new("big.matrix.descriptor", description = list(sharedType = "FileBacked", 
+    filename = "pd.bin", dirname = "/Users/susiegrigson/GitHubs/Comigration_TubeExperiment_Analysis/data/iCAMP//", 
+    totalRows = 897L, totalCols = 897L, rowOffset = c(0, 897), 
+    colOffset = c(0, 897), nrow = 897, ncol = 897, rowNames = NULL, 
+    colNames = NULL, type = "double", separated = FALSE))

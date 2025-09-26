@@ -7,7 +7,7 @@ library(ecodist)
 library(ggplot2)
 library(dplyr)
 
-setwd('../')
+setwd('~/GitHubs/Comigration_TubeExperiment_Analysis/')
 
 ### Make heatmap of long term migration viruses 
 # read in the data 
@@ -141,10 +141,20 @@ bray_curtis_pcoa_df$Order <- as.numeric(bray_curtis_pcoa_df$Order)
 bray_curtis_pcoa_df$pcoa1 <- as.numeric(bray_curtis_pcoa_df$pcoa1)
 
 # Calculate the Pearson correlation coefficient between 'Order' and 'PCoA1'
-correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
+#correlation_order_pcoa1 <- cor(bray_curtis_pcoa_df$Order, bray_curtis_pcoa_df$pcoa1, method = "pearson")
 
 # Print the correlation coefficient
-print(correlation_order_pcoa1)
+#print(correlation_order_pcoa1)
+
+# Create a distance matrix based on sample order
+order_dist <- dist(bray_curtis_pcoa_df$Order, method = "euclidean")
+
+# Run Mantel test using vegan (Pearson method, 9999 permutations)
+mantel_result <- vegan::mantel(bray_curtis_dist, order_dist, method = "pearson", permutations = 9999)
+
+# Print the result
+print(mantel_result)
+
 
 ### Repeat ordination for long term migration tube samples 
 data <- read.table(file = 'output_files/long_term_migration_virus_hecatomb_species.tsv', header = TRUE, row.names = 1, sep = '\t')
@@ -184,13 +194,20 @@ bray_curtis_plot <- ggplot(data = bray_curtis_pcoa_df, aes(x=pcoa1, y=pcoa2, col
 bray_curtis_plot 
 ggsave("figures/long_term_migration_virus_species_PCoA.png", plot = bray_curtis_plot + theme(aspect.ratio = 1), width = 5, height = 5, units = "in")
 
+## 1. Perform PERMANOVA
+# Test for differences in community composition between locations
+permanova_result_sewage_date <- adonis2(bray_curtis_dist ~ sewage_date, data = meta, method = "bray", permutations=9999)
+print(permanova_result_sewage_date)
+permanova_result_location <- adonis2(bray_curtis_dist ~ location, data = meta, method = "bray", permutations=9999)
+print(permanova_result_location)
 
-# Do a PERMANOVA to see if there is a significant difference in viruses 
-## difference between the beginning and the end 
-permanova_location <- adonis2(bray_curtis_dist ~ meta$location, permutations=9999)
-## difference between the sewage date 
-permanova_sewagedate <- adonis2(bray_curtis_dist ~ meta$sewage_date, permutations=9999)
+## 2. Perform PERMDISP
+# Test for homogeneity of dispersions for 'location'
+disper_location <- betadisper(bray_curtis_dist, meta$location)
+permdisp_location <- permutest(disper_location, permutations = 9999)
+print(permdisp_location)
 
-# Do a PERMDISP to see if there is a signficant difference in dispersion 
-permdisp_location <- betadisper(bray_curtis_dist, meta$location)  not sure what is up with this 
-permdisp_results <- permutest(permdisp_location, permutations = 9999) 
+
+
+
+

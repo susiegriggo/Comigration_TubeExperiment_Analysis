@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18646419.svg)](https://doi.org/10.5281/zenodo.18646419)
 # Co-migration of hundreds of species over metres drives selection and promotes non-motile hitchhikers
 
 Code used to generate figures for the paper 'Co-migration of hundreds of species over metres drives selection and promotes non-motile hitchhikers' by Grigson et. al 
